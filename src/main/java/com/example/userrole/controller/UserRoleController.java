@@ -50,4 +50,22 @@ public class UserRoleController {
     public ResponseEntity<List<String>> getUsersForRole(@PathVariable String roleName) {
         return ResponseEntity.ok(service.getUsersForRole(roleName));
     }
+
+    @DeleteMapping("/users/{username}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable String username,
+            @RequestHeader("X-Username") String callerUsername) {
+        service.requireAdmin(callerUsername);  // make the method public
+        service.deleteUser(username);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/roles/{roleName}")
+    public ResponseEntity<Void> deleteRole(
+            @PathVariable String roleName,
+            @RequestHeader("X-Username") String callerUsername) {
+        service.requireAdmin(callerUsername);
+        service.deleteRole(roleName);
+        return ResponseEntity.noContent().build();
+    }
 }

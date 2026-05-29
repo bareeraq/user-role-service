@@ -91,4 +91,28 @@ public class UserRoleService {
         return mappingRepo.findByRoleId(role.getId())
                 .stream().map(m -> m.getUser().getUsername()).toList();
     }
+
+    public void deleteUser(String username) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        userRepo.delete(user);
+    }
+
+    public void deleteRole(String roleName) {
+        Role role = roleRepo.findByRoleName(roleName.toUpperCase())
+                .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+        roleRepo.delete(role);
+    }
+
+    //helper method to check the role (only admin)
+    public void requireAdmin(String callerUsername) {
+        User caller = userRepo.findByUsername(callerUsername)
+                .orElseThrow(() -> new RuntimeException("Caller not found: " + callerUsername));
+        boolean isAdmin = mappingRepo.findByUserId(caller.getId())
+                .stream()
+                .anyMatch(m -> m.getRole().getRoleName().equals("ADMIN"));
+        if (!isAdmin) {
+            throw new SecurityException("Access denied: ADMIN role required");
+        }
+    }
 }
